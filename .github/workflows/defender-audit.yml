@@ -32,11 +32,17 @@ jobs:
           $mp = Get-ChildItem "$env:ProgramData/Microsoft/Windows Defender/Platform/*/MpCmdRun.exe" | Sort-Object FullName -Descending | Select-Object -First 1
           if (-not $mp) { throw 'Defender scanner unavailable.' }
           Get-MpPreference | Select-Object ExclusionPath,ExclusionProcess,ExclusionExtension,DisableArchiveScanning,DisableRealtimeMonitoring,MAPSReporting,SubmitSamplesConsent | Format-List | Out-File reports/scan-settings.txt
+          $preferences = Get-MpPreference
+          if ($preferences.ExclusionPath) { Remove-MpPreference -ExclusionPath $preferences.ExclusionPath }
+          if ($preferences.ExclusionProcess) { Remove-MpPreference -ExclusionProcess $preferences.ExclusionProcess }
+          if ($preferences.ExclusionExtension) { Remove-MpPreference -ExclusionExtension $preferences.ExclusionExtension }
           Set-MpPreference -DisableArchiveScanning $false
+          Get-MpPreference | Select-Object ExclusionPath,ExclusionProcess,ExclusionExtension,DisableArchiveScanning,DisableRealtimeMonitoring,MAPSReporting,SubmitSamplesConsent | Format-List | Out-File reports/scan-settings-effective.txt
           $auditPath = 'C:\AugmentArtifactAudit'
           New-Item -ItemType Directory -Force $auditPath | Out-Null
           Copy-Item samples/*.exe $auditPath
           & $mp.FullName -CheckExclusion -Path $auditPath 2>&1 | Out-File reports/exclusion-check.txt
+          if ($LASTEXITCODE -eq 0) { throw 'Audit path is excluded; scan result would not be valid.' }
           $failed = $false
           foreach ($file in Get-ChildItem "$auditPath/*.exe") {
             & $mp.FullName -Scan -ScanType 3 -File $file.FullName -DisableRemediation 2>&1 | Tee-Object -FilePath "reports/$($file.Name).txt"

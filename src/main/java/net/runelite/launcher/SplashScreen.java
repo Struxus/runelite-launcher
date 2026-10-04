@@ -41,7 +41,7 @@ import java.lang.reflect.InvocationTargetException;
 @Slf4j
 public class SplashScreen extends JFrame implements ActionListener
 {
-	private static final Color BRAND_ORANGE = new Color(0, 194, 0/*220, 138, 0*/);
+	private static final Color BRAND_GOLD = new Color(201, 170, 88);
 	private static final Color DARKER_GRAY_COLOR = new Color(30, 30, 30);
 
 	private static final int WIDTH = 200;
@@ -65,22 +65,14 @@ public class SplashScreen extends JFrame implements ActionListener
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
-		try (var in = SplashScreen.class.getResourceAsStream(LauncherProperties.getRuneLite128()))
-		{
-			setIconImage(ImageIO.read(in));
-		}
+		setIconImages(Branding.icons());
 		setLayout(null);
 		Container pane = getContentPane();
 		pane.setBackground(DARKER_GRAY_COLOR);
 
 		Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
 
-		BufferedImage logo;
-		try (var in = SplashScreen.class.getResourceAsStream(LauncherProperties.getRuneLiteSplash()))
-		{
-			logo = ImageIO.read(in);
-		}
-		JLabel logoLabel = new JLabel(new ImageIcon(logo));
+		JLabel logoLabel = new JLabel(Branding.splash());
 		pane.add(logoLabel);
 		logoLabel.setBounds(0, 0, WIDTH, WIDTH);
 
@@ -94,8 +86,8 @@ public class SplashScreen extends JFrame implements ActionListener
 		y += action.getHeight() + PAD;
 
 		pane.add(progress);
-		progress.setForeground(BRAND_ORANGE);
-		progress.setBackground(BRAND_ORANGE.darker().darker());
+		progress.setForeground(BRAND_GOLD);
+		progress.setBackground(BRAND_GOLD.darker().darker());
 		progress.setBorder(new EmptyBorder(0, 0, 0, 0));
 		progress.setBounds(0, y, WIDTH, 14);
 		progress.setFont(font);

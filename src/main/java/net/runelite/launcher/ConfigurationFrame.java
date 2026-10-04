@@ -70,18 +70,15 @@ public class ConfigurationFrame extends JFrame
 	{
 		setTitle("Launcher Configuration");
 
-		BufferedImage iconImage;
-		try (var in = ConfigurationFrame.class.getResourceAsStream(LauncherProperties.getRuneLite128()))
+		try
 		{
-			iconImage = ImageIO.read(in);
+			setIconImages(Branding.icons());
 		}
 		catch (IOException ex)
 		{
 			throw new RuntimeException(ex);
 		}
-
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setIconImage(iconImage);
 
 		Container pane = getContentPane();
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));

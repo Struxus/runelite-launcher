@@ -77,19 +77,18 @@ public class FatalErrorDialog extends JDialog
 
 		UIManager.put("Button.select", DARKER_GRAY_COLOR);
 
-		try (var in = FatalErrorDialog.class.getResourceAsStream(LauncherProperties.getRuneLite128()))
+		try
 		{
-			setIconImage(ImageIO.read(in));
+			setIconImages(Branding.icons());
 		}
 		catch (IOException e)
 		{
 		}
 
-		try (var in = FatalErrorDialog.class.getResourceAsStream(LauncherProperties.getRuneLiteSplash()))
+		try
 		{
-			BufferedImage logo = ImageIO.read(in);
 			JLabel runelite = new JLabel();
-			runelite.setIcon(new ImageIcon(logo));
+			runelite.setIcon(Branding.splash());
 			runelite.setAlignmentX(Component.CENTER_ALIGNMENT);
 			runelite.setBackground(DARK_GRAY_COLOR);
 			runelite.setOpaque(true);

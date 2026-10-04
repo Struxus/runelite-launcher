@@ -1,0 +1,48 @@
+name: Defender artifact audit
+on: workflow_dispatch
+permissions:
+  contents: read
+  actions: read
+jobs:
+  scan:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact_run: ['37174087242', '37174789667']
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows
+          run-id: ${{ matrix.artifact_run }}
+          github-token: ${{ github.token }}
+          path: samples
+      - name: Scan exact published artifacts (do not execute)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force reports | Out-Null
+          Get-ChildItem samples/*.exe | Get-FileHash -Algorithm SHA256 | Format-List | Out-File reports/hashes.txt
+          Get-MpComputerStatus | Format-List * | Out-File reports/defender-before.txt
+          Start-Service WinDefend
+          Update-MpSignature
+          $status = Get-MpComputerStatus
+          $status | Format-List * | Out-File reports/defender-after.txt
+          if (-not $status.AMServiceEnabled -or -not $status.AntivirusEnabled) { throw 'Defender unavailable; no clean verdict possible.' }
+          $mp = Get-ChildItem "$env:ProgramData/Microsoft/Windows Defender/Platform/*/MpCmdRun.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $mp) { throw 'Defender scanner unavailable.' }
+          $failed = $false
+          foreach ($file in Get-ChildItem samples/*.exe) {
+            & $mp.FullName -Scan -ScanType 3 -File $file.FullName -DisableRemediation 2>&1 | Tee-Object -FilePath "reports/$($file.Name).txt"
+            $result = $LASTEXITCODE
+            "Scanner exit code: $result" | Add-Content "reports/$($file.Name).txt"
+            if ($result -ne 0) { $failed = $true }
+          }
+          Get-MpThreatDetection | Format-List * | Out-File reports/detections.txt
+          if ($failed) { throw 'Detection or scan failure; inspect reports. Do not release based on this result.' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: defender-report-${{ matrix.artifact_run }}
+          path: reports
+          if-no-files-found: error

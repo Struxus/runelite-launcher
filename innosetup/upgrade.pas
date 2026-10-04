@@ -1,3 +1,10 @@
+// Refresh an existing desktop shortcut even when the optional task is deselected.
+function UpdateExistingDesktopShortcut(): Boolean;
+begin
+  Result := (not WizardIsTaskSelected('DesktopIcon')) and
+    FileExists(ExpandConstant('{userdesktop}\Augment.lnk'));
+end;
+
 procedure WriteInstallId();
 begin
   SaveStringToFile(ExpandConstant('{app}\install_id.txt'), IntToStr(Random($7fffffff)), false)

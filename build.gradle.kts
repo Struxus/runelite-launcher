@@ -1,3 +1,4 @@
+import java.security.MessageDigest
 /*
  * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
@@ -113,11 +114,15 @@ tasks.register<Copy>("filterAppimage") {
 }
 
 tasks.register<Copy>("filterInnosetup") {
+    val iconFile = file("innosetup/runelite.ico")
+    inputs.file(iconFile)
+    val iconHash = MessageDigest.getInstance("SHA-256")
+        .digest(iconFile.readBytes()).joinToString("") { "%02x".format(it) }.take(16)
     from("innosetup") {
         include("*.iss")
     }
     into("build/filtered-resources")
-    expand("project" to project) {
+    expand(mapOf("project" to project, "iconHash" to iconHash)) {
         escapeBackslash = true
     }
 }

@@ -13,7 +13,8 @@ PrivilegesRequired=lowest
 
 WizardSmallImageFile=${project.projectDir}/innosetup/runelite_small_55.bmp,${project.projectDir}/innosetup/runelite_small_64.bmp,${project.projectDir}/innosetup/runelite_small_83.bmp,${project.projectDir}/innosetup/runelite_small_110.bmp,${project.projectDir}/innosetup/runelite_small_128.bmp,${project.projectDir}/innosetup/runelite_small_166.bmp
 SetupIconFile=${project.projectDir}/innosetup/runelite.ico
-UninstallDisplayIcon={app}\Augment.exe
+UninstallDisplayIcon={app}\augment-${iconHash}.ico
+ChangesAssociations=yes
 
 Compression=lzma2
 SolidCompression=yes
@@ -25,6 +26,7 @@ OutputBaseFilename=AugmentSetup
 Name: DesktopIcon; Description: "Create a &desktop icon";
 
 [Files]
+Source: "${project.projectDir}\innosetup\runelite.ico"; DestDir: "{app}"; DestName: "augment-${iconHash}.ico"; Flags: ignoreversion
 Source: "${project.projectDir}\build\win-x64\Augment.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "${project.projectDir}\build\win-x64\Augment.jar"; DestDir: "{app}"
 Source: "${project.projectDir}\build\win-x64\launcher_amd64.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -33,10 +35,11 @@ Source: "${project.projectDir}\build\win-x64\jre\*"; DestDir: "{app}\jre"; Flags
 
 [Icons]
 ; start menu
-Name: "{userprograms}\Augment\Augment"; Filename: "{app}\Augment.exe"
-Name: "{userprograms}\Augment\Augment (configure)"; Filename: "{app}\Augment.exe"; Parameters: "--configure"
-Name: "{userprograms}\Augment\Augment (safe mode)"; Filename: "{app}\Augment.exe"; Parameters: "--safe-mode"
-Name: "{userdesktop}\Augment"; Filename: "{app}\Augment.exe"; Tasks: DesktopIcon
+Name: "{userprograms}\Augment\Augment"; Filename: "{app}\Augment.exe"; IconFilename: "{app}\augment-${iconHash}.ico"
+Name: "{userprograms}\Augment\Augment (configure)"; Filename: "{app}\Augment.exe"; Parameters: "--configure"; IconFilename: "{app}\augment-${iconHash}.ico"
+Name: "{userprograms}\Augment\Augment (safe mode)"; Filename: "{app}\Augment.exe"; Parameters: "--safe-mode"; IconFilename: "{app}\augment-${iconHash}.ico"
+Name: "{userdesktop}\Augment"; Filename: "{app}\Augment.exe"; Check: UpdateExistingDesktopShortcut; IconFilename: "{app}\augment-${iconHash}.ico"
+Name: "{userdesktop}\Augment"; Filename: "{app}\Augment.exe"; Tasks: DesktopIcon; IconFilename: "{app}\augment-${iconHash}.ico"
 
 [Run]
 Filename: "{app}\Augment.exe"; Parameters: "--postinstall"; Flags: nowait

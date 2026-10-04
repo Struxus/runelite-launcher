@@ -38,3 +38,5 @@ The existing resource filenames are retained for compatibility with the build sc
 `branding/preview.png` shows the icons at actual pixel sizes. Windows installers
 must be built and checked on Windows (or the Windows CI jobs); a local macOS JAR
 build does not verify Windows installation or taskbar behaviour.
+
+Windows shortcuts use an icon filename derived from the artwork SHA-256 hash, so artwork changes get a fresh Explorer cache key. Installation refreshes existing desktop shortcuts even when the desktop task is deselected, updates Start menu icons, and notifies Explorer of association changes. User-created or pinned copies of shortcuts may still need to be recreated.

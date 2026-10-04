@@ -37,6 +37,8 @@ jobs:
           if ($preferences.ExclusionProcess) { Remove-MpPreference -ExclusionProcess $preferences.ExclusionProcess }
           if ($preferences.ExclusionExtension) { Remove-MpPreference -ExclusionExtension $preferences.ExclusionExtension }
           Set-MpPreference -DisableArchiveScanning $false
+          Set-MpPreference -DisableRealtimeMonitoring $false
+          Start-Sleep -Seconds 15
           Get-MpPreference | Select-Object ExclusionPath,ExclusionProcess,ExclusionExtension,DisableArchiveScanning,DisableRealtimeMonitoring,MAPSReporting,SubmitSamplesConsent | Format-List | Out-File reports/scan-settings-effective.txt
           $auditPath = 'C:\AugmentArtifactAudit'
           New-Item -ItemType Directory -Force $auditPath | Out-Null

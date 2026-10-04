@@ -31,8 +31,14 @@ jobs:
           if (-not $status.AMServiceEnabled -or -not $status.AntivirusEnabled) { throw 'Defender unavailable; no clean verdict possible.' }
           $mp = Get-ChildItem "$env:ProgramData/Microsoft/Windows Defender/Platform/*/MpCmdRun.exe" | Sort-Object FullName -Descending | Select-Object -First 1
           if (-not $mp) { throw 'Defender scanner unavailable.' }
+          Get-MpPreference | Select-Object ExclusionPath,ExclusionProcess,ExclusionExtension,DisableArchiveScanning,DisableRealtimeMonitoring,MAPSReporting,SubmitSamplesConsent | Format-List | Out-File reports/scan-settings.txt
+          Set-MpPreference -DisableArchiveScanning $false
+          $auditPath = 'C:\AugmentArtifactAudit'
+          New-Item -ItemType Directory -Force $auditPath | Out-Null
+          Copy-Item samples/*.exe $auditPath
+          & $mp.FullName -CheckExclusion -Path $auditPath 2>&1 | Out-File reports/exclusion-check.txt
           $failed = $false
-          foreach ($file in Get-ChildItem samples/*.exe) {
+          foreach ($file in Get-ChildItem "$auditPath/*.exe") {
             & $mp.FullName -Scan -ScanType 3 -File $file.FullName -DisableRemediation 2>&1 | Tee-Object -FilePath "reports/$($file.Name).txt"
             $result = $LASTEXITCODE
             "Scanner exit code: $result" | Add-Content "reports/$($file.Name).txt"

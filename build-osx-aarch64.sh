@@ -45,30 +45,7 @@ build() {
 }
 
 dmg() {
-    SIGNING_IDENTITY="Developer ID Application"
-    codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime $APPBASE || true
-
-    # create-dmg exits with an error code due to no code signing, but is still okay
-    create-dmg $APPBASE . || true
-    mv Augment\ *.dmg Augment-aarch64.dmg
-
-    # dump for CI
-    hdiutil imageinfo Augment-aarch64.dmg
-
-    if ! hdiutil imageinfo Augment-aarch64.dmg | grep -q "Format: ULFO" ; then
-        echo Format of dmg is not ULFO
-        exit 1
-    fi
-
-    if ! hdiutil imageinfo Augment-aarch64.dmg | grep -q "Apple_HFS" ; then
-        echo Filesystem of dmg is not Apple_HFS
-        exit 1
-    fi
-
-    # Notarize app
-    if xcrun notarytool submit Augment-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-        xcrun stapler staple Augment-aarch64.dmg
-    fi
+    bash tools/package-macos-release.sh "$APPBASE" Augment-aarch64.dmg ULFO
 }
 
 while test $# -gt 0; do

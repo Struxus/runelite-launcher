@@ -40,3 +40,17 @@ must be built and checked on Windows (or the Windows CI jobs); a local macOS JAR
 build does not verify Windows installation or taskbar behaviour.
 
 Windows shortcuts use an icon filename derived from the artwork SHA-256 hash, so artwork changes get a fresh Explorer cache key. Installation refreshes existing desktop shortcuts even when the desktop task is deselected, updates Start menu icons, and notifies Explorer of association changes. User-created or pinned copies of shortcuts may still need to be recreated.
+
+### Signed macOS releases
+
+macOS release DMGs require a Developer ID Application identity with its private
+key in Keychain and a working `notarytool` credential profile. A `.cer` file alone
+is not sufficient. Configure credentials interactively; do not commit passwords,
+private keys or certificate exports.
+
+After building the app, set `SIGNING_IDENTITY` to the certificate identity and
+`NOTARY_PROFILE` to your Keychain profile, then run `build-osx-aarch64.sh --dmg`
+or `build-osx-x64.sh --dmg`. The release packager signs all nested Mach-O code,
+verifies the app, signs the DMG, requires Apple's `Accepted` result, staples the
+ticket and checks Gatekeeper. Signing/notarization failures stop the release;
+unsigned CI output must not be published as a ready-to-install macOS release.
